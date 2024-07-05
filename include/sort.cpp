@@ -5,41 +5,42 @@
 namespace sort
 {
 
-void selectionSort(float *A, int n)
-{
-    int smallest = 0;
-    int i = 0;
-    int j = 0;
-    for (i = 0; i < n - 1; i++)
+    void selectionSort(float *A, int n)
     {
-        smallest = i;
-        for (j = i + 1; j < n; j++)
+        int smallest = 0;
+        int i = 0;
+        int j = 0;
+        for (i = 0; i < n - 1; i++)
         {
-            if (A[j] < A[smallest])
+            smallest = i;
+            for (j = i + 1; j < n; j++)
             {
-                smallest = j;
+                if (A[j] < A[smallest])
+                {
+                    smallest = j;
+                }
             }
+            util::swap(A, i, smallest);
         }
-        util::swap(A, i, smallest);
     }
-}
 
-void insertionSort(float *A, int n)
-{
-    float aux;
-    int j;
-    for (int i = 1; i < n; i++)
+    void insertionSort(float *A, int n)
     {
-        aux = A[i];
-        j = i - 1;
-        while (j >= 0 && aux < A[j])
+        float aux;
+        int j;
+        for (int i = 1; i < n; i++)
         {
-            A[j + 1] = A[j];
-            j--;
+            aux = A[i];
+            j = i - 1;
+            while (j >= 0 && aux < A[j])
+            {
+                A[j + 1] = A[j];
+                j--;
+            }
+            A[j + 1] = aux;
         }
-        A[j + 1] = aux;
     }
-}
+
 
 void merge(float *arr, int low, int high, int mid)
 {
@@ -92,114 +93,140 @@ void mergeSort(float *arr, int low, int high) {
 void mergeSort(float *arr, int high) {
     mergeSort(arr, 0, high);
 }
-
-int split_qs(float *A, int i, int j)
-{
-    /***
-     * split for quicksort
-     * i,j are the endpoints
-     */
-    int p = util::getRandomInt(i, j);
-
-    while (i < j)
+    /*
+    void merge(float *A, int i, int k, int j)
     {
-
-        while (i < p && A[i] <= A[p])
+        float *Aux = new float[j - i + 1];
+        Aux = util::createArray(j - i + 1);
+        int q = i;
+        int p1 = i;
+        int p2 = k + 1;
+        while (p1 <= k && p2 <= j)
         {
-            i = i + 1;
+            if (A[p1] <= A[p2])
+            {
+                Aux[q] = A[p1];
+                p1++;
+            }
+            else
+            {
+                Aux[q] = A[p2];
+                p2++;
+            }
+            q++;
         }
-
-        while (j > p && A[j] >= A[p])
+        // std::cout << 1 << std::endl;
+        while (p1 <= k)
         {
-            j = j - 1;
+            Aux[q] = A[p1];
+            p1++;
+            q++;
         }
-
-        util::swap(A, i, j);
-
-        if (i == p)
+        // std::cout << 2 << std::endl;
+        while (p2 <= j)
         {
-            p = j;
+            Aux[q] = A[p2];
+            p2++;
+            q++;
         }
-        else if (j == p)
+        for (int l = i; l < j; l++)
+            A[l] = Aux[l];
+        // std::cout << 3 << std::endl;
+        util::deleteArray(Aux);
+    }
+
+    void mergeSort(float *A, int i, int j)
+    {
+        int k = (i + j)/2;
+        if (i < j)
         {
-            p = i;
+            mergeSort(A, i, k);
+            // std::cout << 4 << std::endl;
+            mergeSort(A, k+1, j);
+            // std::cout << 5 << std::endl;
+            merge(A, i, k, j);
+            // std::cout << 6 << std::endl;
         }
     }
-    return p;
-}
 
-void quickSort(float *A, int i, int j)
-{
-    if (i < j)
+    void mergeSort(float *A, int n)
     {
-        int k = split_qs(A, i, j);
-        quickSort(A, i, k - 1);
-        quickSort(A, k + 1, j);
+        mergeSort(A, 0, n - 1);
     }
-}
+    */
 
-void quickSort(float *A, int n)
-{
-    quickSort(A, 0, n - 1);
-}
-
-int k_smallest(float *A, int i, int j, int k)
-{
-    int p = split_qs(A, i, j);
-    int val = 0;
-    if (k == p)
+    int split_qs(float *A, int i, int j)
     {
-        val = A[p];
+        /***
+         * split for quicksort
+         * i,j are the endpoints
+         */
+        int p = util::getRandomInt(i, j);
+
+        while (i < j)
+        {
+
+            while (i < p && A[i] <= A[p])
+            {
+                i = i + 1;
+            }
+
+            while (j > p && A[j] >= A[p])
+            {
+                j = j - 1;
+            }
+
+            util::swap(A, i, j);
+
+            if (i == p)
+            {
+                p = j;
+            }
+            else if (j == p)
+            {
+                p = i;
+            }
+        }
+        return p;
     }
-    else if (k < p)
+
+    void quickSort(float *A, int i, int j)
     {
-        val = k_smallest(A, i, p - 1, k);
+        if (i < j)
+        {
+            int k = split_qs(A, i, j);
+            quickSort(A, i, k - 1);
+            quickSort(A, k + 1, j);
+        }
     }
-    else
+
+    void quickSort(float *A, int n)
     {
-        val = k_smallest(A, p + 1, j, k);
-    }
-    return val;
-}
-
-int k_smallest(float *A, int n, int k)
-{
-    return k_smallest(A, 0, n - 1, k);
-}
-
-int maxValue(float *A, int n) {
-    int max = A[0];
-    for (int i = 1; i < n; i++)
-        if ((int)A[i] > max)
-            max = A[i];
-    return max;
-}
-
-void bucketSort(float *A, int n, int exp) {
-    int out[n];
-    int i;
-    int count[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    for (i = 0; i < n; i++)
-        count[((int)A[i] / exp) % 10]++;
-    
-    for (i = 1; i < 10; i++)
-        count[i] = count[i - 1];
-
-    for (i = n - 1; i >= 0; i--) {
-        out[count[((int)A[i] / exp) % 10] - 1] = A[i];
-        count[((int)A[i] / exp) % 10]--;
+        quickSort(A, 0, n - 1);
     }
 
-    for (i = 0; i < n; i++)
-        A[i] = (float)out[i];
-
-}
-
-void radixSort(float *A, int n) {
-    int max = maxValue(A, n);
-    for (int exp = 1; max/exp > 0; exp *= 10) {
-        bucketSort(A, n, exp);
+    int k_smallest(float *A, int i, int j, int k)
+    {
+        int p = split_qs(A, i, j);
+        int val = 0;
+        if (k == p)
+        {
+            val = A[p];
+        }
+        else if (k < p)
+        {
+            val = k_smallest(A, i, p - 1, k);
+        }
+        else
+        {
+            val = k_smallest(A, p + 1, j, k);
+        }
+        return val;
     }
-}
+
+    int k_smallest(float *A, int n, int k)
+    {
+        return k_smallest(A, 0, n - 1, k);
+    }
+
 }

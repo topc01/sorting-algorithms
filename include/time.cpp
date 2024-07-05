@@ -14,10 +14,9 @@ namespace test
 		return static_cast<long>(int_ms.count());
 	}
 
-	long *testSort(void (*function)(float *, int), int max_size, int n_sizes)
+	void testSort(void (*function)(float *, int), int max_size, int n_sizes)
 	{
 		int *sizes = util::linspace(max_size, n_sizes);
-		long *times = new long[n_sizes];
 		// float* A = nullptr;
 		int n = 0;
 		for (int i = 0; i < n_sizes; i++)
@@ -32,36 +31,31 @@ namespace test
 			auto end = std::chrono::high_resolution_clock::now();
 			long elapsed = getElapsedTime(start, end);
 			util::deleteArray(A);
-
-			times[i] = elapsed;
-			// std::cout << " [" << n << "," << elapsed << "]" << std::endl;
+			std::cout << " [" << n << "," << elapsed << "]" << std::endl;
 		}
 		delete[] sizes;
-		return times;
-	}
-
-	long *testSortSpecific(void (*function)(float *, int), int max_size, int n_sizes)
-	{
-		int *sizes = util::linspace(max_size, n_sizes);
-		long *times = new long[n_sizes];
-		// float* A = nullptr;
-		int n = 0;
-		for (int i = 0; i < n_sizes; i++)
-		{
-			n = sizes[i];
-			float *A = new float[n];
-			A = util::createRandomIntArray(n, 0, 99999);
-			auto start = std::chrono::high_resolution_clock::now();
-			// change the sort method here
-			(*function)(A, n);
-			//
-			auto end = std::chrono::high_resolution_clock::now();
-			long elapsed = getElapsedTime(start, end);
-			util::deleteArray(A);
-
-			times[i] = elapsed;
-		}
-		delete[] sizes;
-		return times;
 	}
 }
+
+// int main(int nargs, char** nvargs){
+//	int n_sizes = 10;
+//	int max_size = 100000;
+//	testSort(max_size, n_sizes);
+//	return 0;
+// }
+
+// int main(int nargs, char** args){
+
+// 	std::srand(std::time(nullptr));
+// 	int n = 10;
+// 	float* A = sort::createRandomIntArray(n, 0, 100);
+// 	sort::printArray(A, n);
+// 	std::cout << sort::k_smallest(A, n, 2);
+// //	auto start = std::chrono::high_resolution_clock::now();
+// //	sort::quickSort(A, n);
+// //	sort::printArray(A, n);
+// //	sort::deleteArray(A);
+// //	auto end = std::chrono::high_resolution_clock::now();
+// //	std::cout<<" Elapsed : " << getElapsedTime(start, end) << std::endl;
+// 	return 0;
+// }
