@@ -1,6 +1,7 @@
 #pragma once
 
-namespace test {
+namespace time {
     // long getElapsedTime(bool, bool);
-    void testSort(void (*function)(float*, int), int, int);
+    long *generic(void (*function)(float*, int), int, int);
+    long *testSortSpecific(void (function)(float*, int), int, int);
 }

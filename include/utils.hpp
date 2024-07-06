@@ -1,7 +1,6 @@
 #pragma once
 
-namespace util
-{
+namespace utils {
 	float *createArray(int n);
 	float *createRandomArray(int n);
 	float *createRandomIntArray(int n, int minVal = 0, int maxVal = 100);

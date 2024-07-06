@@ -1,29 +1,32 @@
 #include <iostream>
 #include <string.h>
-// #include <matplot/matplot.h>
-// #include "include.hpp"
+#include <fstream>
 #include "include/utils.hpp" //util
 #include "include/sort.hpp"	 //sort
 #include "include/time.hpp"	 //test
 
-// using namespace sort;
-// void littleSize()
-// {
-// 	float *randomArrayList[10];
-// 	for (int i = 1; i <= 10; i++)
-// 	{
-// 		*(randomArrayList + i - 1) = util::createRandomIntArray(i * 10000, 10000, 100000);
-// 	}
-// }
+const int SMALL_SIZE = 100000;
+const int BIG_SIZE = 1000000;
+const int PARTITIONS = 10;
 
-// void bigSize()
-// {
-// 	float *randomArrayList[10];
-// 	for (int i = 1; i <= 10; i++)
-// 	{
-// 		*(randomArrayList + i - 1) = util::createRandomIntArray(i * 100000, 100000, 1000000);
-// 	}
-// }
+void writeFile(std::ofstream *file, std::string filename, long **arr, int size, int partitions)
+{
+	int *sizes = utils::linspace(size, partitions);
+
+	file->open(filename);
+	*file << "insertionSort,selectionSort,quickSort,mergeSort" << std::endl;
+
+	int n = 0;
+	for (int i = 0; i < partitions; i++)
+	{
+		n = sizes[i];
+		*file << n << ",";
+		for (int j = 0; j < 3; j++)
+			*file << arr[j][i] << ",";
+		*file << arr[4][i] << std::endl;
+	}
+	file->close();
+}
 
 int main()
 {
@@ -39,30 +42,51 @@ int main()
 		sort::quickSort,
 		sort::mergeSort
 	};
-	// float *randomArray = util::createRandomIntArray(20000, 10000, 100000);
-	// float randomArray[10] = {10, 2, 1, 9, 5, 2, 8, 3, 2, 9};
-	// util::printArray(randomArray, 10);
-	// sort::mergeSort(randomArray, 20000);
-	// util::printArray(randomArray, 10);
 
-	// test::testSort(sort::mergeSort, 1000000, 10);
-	// Esto prueba cada funcion con distintos tamaños
-	if (1) {
-	std::cout << "\nSMALL SIZE:\n";
+	//GENERICOS	
+	long **smallSize1 = new long *[4];
+	long **smallSize2 = new long *[4];
+	long **bigSize = new long *[4];
+
 	for (int i=0; i<4; i++)
 	{
-		std::cout << sortFunctionsNames[i] << std::endl;
-		test::testSort(sortFunctions[i], 100000, 10);
-	}
-	std::cout << "\nBIG SIZE:\n";
-	for (int i=0; i<4; i++)
-	{
-		std::cout << sortFunctionsNames[i] << std::endl;
-		test::testSort(sortFunctions[i], 1000000, 10);
-	}
-	}
+		smallSize1[i] = new long[PARTITIONS];
+		smallSize1[i] = time::generic(sortFunctions[i], SMALL_SIZE, PARTITIONS);
+		std::cout << sortFunctionsNames[i] << ": Test small size array 1 done" << std::endl;
 
+		smallSize2[i] = new long[PARTITIONS];
+		smallSize2[i] = time::generic(sortFunctions[i], SMALL_SIZE, PARTITIONS);
+		std::cout << sortFunctionsNames[i] << ": Test small size array 2 done" << std::endl;
 
-	// test::testSort(sort::quickSort, 1000000, 10);
+		bigSize[i] = new long[PARTITIONS];
+		bigSize[i] = time::generic(sortFunctions[i], BIG_SIZE, PARTITIONS);
+		std::cout << sortFunctionsNames[i] << ": Test big size array done" << std::endl;
+	}
+	std::ofstream file1, file2, file3;
+	writeFile(&file1, "times/small_size_1.csv", smallSize1, SMALL_SIZE, PARTITIONS);
+	writeFile(&file2, "times/small_size_2.csv", smallSize2, SMALL_SIZE, PARTITIONS);
+	writeFile(&file3, "times/big_size.csv", bigSize, BIG_SIZE, PARTITIONS);
+	
+	//ESPECIFICOS
+	long *quickSortTime = new long[PARTITIONS];
+	long *radixSortTime = new long[PARTITIONS];
+
+	quickSortTime = time::testSortSpecific(sort::quickSort, BIG_SIZE, PARTITIONS);
+	std::cout << "quickSort: Specific test done" << std::endl;
+	radixSortTime = time::testSortSpecific(sort::radixSort, BIG_SIZE, PARTITIONS);
+	std::cout << "radixSort: Specific test done" << std::endl;
+
+	int *sizes = utils::linspace(BIG_SIZE, PARTITIONS);
+
+	std::ofstream file4;
+	file4.open("times/specific.csv");
+	file4 << "quickSort,radixSort" << std::endl;
+	for (int i = 0; i < PARTITIONS; i++) {
+		file4 << sizes[i] << ",";
+		file4 << quickSortTime[i] << ",";
+		file4 << radixSortTime[i] << std::endl;
+	}
+	file4.close();
+	
 	return 0;
 }
